@@ -363,6 +363,7 @@ function toggleTaskComplete(taskId) {
     if (task) {
         task.completed = !task.completed;
         renderTaskList();
+        refreshWeeklyPanelIfOpen();
         saveToLocalStorage();
     }
 }
@@ -478,6 +479,7 @@ function updateTaskDates(taskId, start, end) {
         task.start = formatDateForInput(start);
         task.end = formatDateForInput(end);
         renderTaskList();
+        refreshWeeklyPanelIfOpen();
         saveToLocalStorage();
     }
 }
@@ -681,6 +683,7 @@ function refreshGantt() {
     
     gantt.refresh(ganttTasks);
     renderTaskList();
+    refreshWeeklyPanelIfOpen();
 }
 
 // ============ 切換視圖模式 ============
@@ -734,10 +737,133 @@ function exportData() {
     URL.revokeObjectURL(url);
 }
 
+// ============ 本週任務面板 ============
+function refreshWeeklyPanelIfOpen() {
+    const panel = document.getElementById('weeklyPanel');
+    if (panel && panel.classList.contains('open')) {
+        renderWeeklyTasks();
+    }
+}
+
+function toggleWeeklyPanel() {
+    const panel = document.getElementById('weeklyPanel');
+    const toggle = document.getElementById('weeklyToggle');
+    const overlay = document.getElementById('weeklyOverlay');
+    
+    const isOpen = panel.classList.contains('open');
+    
+    if (isOpen) {
+        panel.classList.remove('open');
+        toggle.classList.remove('shifted');
+        overlay.classList.remove('visible');
+    } else {
+        renderWeeklyTasks();
+        panel.classList.add('open');
+        toggle.classList.add('shifted');
+        overlay.classList.add('visible');
+    }
+}
+
+function getWeekRange() {
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0=Sun
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+    monday.setHours(0, 0, 0, 0);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    
+    return { start: monday, end: sunday };
+}
+
+function renderWeeklyTasks() {
+    const { start, end } = getWeekRange();
+    const listEl = document.getElementById('weeklyTaskList');
+    const dateRangeEl = document.getElementById('weeklyDateRange');
+    
+    // 顯示日期範圍
+    const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+    dateRangeEl.textContent = `${fmt(start)} (一) ~ ${fmt(end)} (日)`;
+    
+    // 分類任務
+    const starting = [];  // 本週開始
+    const ongoing = [];   // 進行中（跨週）
+    const ending = [];    // 本週結束
+    
+    tasks.forEach(task => {
+        const taskStart = new Date(task.start);
+        const taskEnd = new Date(task.end);
+        taskStart.setHours(0, 0, 0, 0);
+        taskEnd.setHours(23, 59, 59, 999);
+        
+        // 任務與本週有交集
+        if (taskStart <= end && taskEnd >= start) {
+            const startsThisWeek = taskStart >= start && taskStart <= end;
+            const endsThisWeek = taskEnd >= start && taskEnd <= end;
+            
+            if (startsThisWeek && endsThisWeek) {
+                starting.push({ ...task, badge: 'starting', badgeText: '本週開始＆結束' });
+            } else if (startsThisWeek) {
+                starting.push({ ...task, badge: 'starting', badgeText: '本週開始' });
+            } else if (endsThisWeek) {
+                ending.push({ ...task, badge: 'ending', badgeText: '本週截止' });
+            } else {
+                ongoing.push({ ...task, badge: 'ongoing', badgeText: '進行中' });
+            }
+        }
+    });
+    
+    let html = '';
+    
+    if (starting.length === 0 && ongoing.length === 0 && ending.length === 0) {
+        html = '<div class="weekly-empty">🎉 本週沒有任務</div>';
+    } else {
+        if (starting.length > 0) {
+            html += renderWeeklySection('🚀 開始', starting);
+        }
+        if (ongoing.length > 0) {
+            html += renderWeeklySection('🔄 進行中', ongoing);
+        }
+        if (ending.length > 0) {
+            html += renderWeeklySection('🏁 截止', ending);
+        }
+    }
+    
+    listEl.innerHTML = html;
+}
+
+function renderWeeklySection(title, taskList) {
+    let html = `<div class="weekly-section">
+        <div class="weekly-section-title">${title}</div>`;
+    
+    taskList.forEach(task => {
+        const cat = categories[task.category];
+        const borderColor = cat ? cat.color : '#667eea';
+        const completedClass = task.completed ? ' completed-task' : '';
+        
+        html += `
+            <div class="weekly-task-card${completedClass}" style="border-left-color: ${borderColor};">
+                <div class="task-name">${task.completed ? '✅ ' : ''}${task.name}</div>
+                <div class="task-date">📅 ${task.start} ~ ${task.end}</div>
+                <span class="task-badge ${task.badge}">${task.badgeText}</span>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    return html;
+}
+
 // ============ 事件監聽器 ============
 document.addEventListener('DOMContentLoaded', function() {
     loadFromLocalStorage();
     initGantt();
+    
+    // 本週任務面板
+    document.getElementById('weeklyToggle').addEventListener('click', toggleWeeklyPanel);
+    document.getElementById('weeklyOverlay').addEventListener('click', toggleWeeklyPanel);
     
     // 視圖模式切換
     document.querySelectorAll('.view-modes .btn').forEach(btn => {

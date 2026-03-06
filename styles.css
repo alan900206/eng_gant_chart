@@ -12,6 +12,175 @@ body {
     padding: 30px 40px;
 }
 
+/* ============ 左側本週任務面板 ============ */
+.weekly-panel {
+    position: fixed;
+    top: 0;
+    left: -340px;
+    width: 340px;
+    height: 100vh;
+    background: white;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.weekly-panel.open {
+    left: 0;
+}
+
+.weekly-panel-header {
+    padding: 24px 20px 16px;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+}
+
+.weekly-panel-header h3 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+
+.weekly-date-range {
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+.weekly-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.weekly-section {
+    margin-bottom: 20px;
+}
+
+.weekly-section-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #667eea;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #667eea;
+}
+
+.weekly-task-card {
+    padding: 12px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border-left: 4px solid #667eea;
+    background: #f8f9fa;
+    transition: all 0.2s ease;
+}
+
+.weekly-task-card:hover {
+    background: #eef0f5;
+    transform: translateX(3px);
+}
+
+.weekly-task-card .task-name {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.weekly-task-card .task-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.weekly-task-card .task-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 6px;
+}
+
+.weekly-task-card .task-badge.starting {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.weekly-task-card .task-badge.ongoing {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.weekly-task-card .task-badge.ending {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.weekly-task-card.completed-task {
+    opacity: 0.55;
+    text-decoration: line-through;
+}
+
+.weekly-empty {
+    text-align: center;
+    color: #adb5bd;
+    padding: 30px 10px;
+    font-size: 0.95rem;
+}
+
+/* 切換按鈕 */
+.weekly-toggle {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 50px;
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    border: none;
+    border-radius: 0 10px 10px 0;
+    cursor: pointer;
+    font-size: 1.1rem;
+    z-index: 1001;
+    box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.weekly-toggle:hover {
+    width: 48px;
+    background: linear-gradient(135deg, #34495e 0%, #4a6074 100%);
+}
+
+.weekly-toggle.shifted {
+    left: 340px;
+}
+
+/* 面板開啟時的遮罩 */
+.weekly-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+
+.weekly-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .container {
     max-width: 1400px;
     margin: 0 auto;
@@ -1031,4 +1200,74 @@ body.dark-mode .gantt .upper-text {
 
 body.dark-mode .gantt-wrapper::-webkit-scrollbar-track {
     background: #2a2a3a;
+}
+
+/* ============ 深色模式 - 本週任務面板 ============ */
+body.dark-mode .weekly-panel {
+    background: #1e1e2e;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+}
+
+body.dark-mode .weekly-panel-header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #252540 100%);
+}
+
+body.dark-mode .weekly-panel-body {
+    background: #1e1e2e;
+}
+
+body.dark-mode .weekly-section-title {
+    color: #8899ff;
+    border-bottom-color: #8899ff;
+}
+
+body.dark-mode .weekly-task-card {
+    background: #2a2a3a;
+}
+
+body.dark-mode .weekly-task-card:hover {
+    background: #323245;
+}
+
+body.dark-mode .weekly-task-card .task-name {
+    color: #e0e0f0;
+}
+
+body.dark-mode .weekly-task-card .task-date {
+    color: #9898b0;
+}
+
+body.dark-mode .weekly-task-card .task-badge.starting {
+    background: #1b3a1b;
+    color: #66cc66;
+}
+
+body.dark-mode .weekly-task-card .task-badge.ongoing {
+    background: #1a2a3e;
+    color: #66aaff;
+}
+
+body.dark-mode .weekly-task-card .task-badge.ending {
+    background: #3a2a1a;
+    color: #ffaa66;
+}
+
+body.dark-mode .weekly-task-card.completed-task .task-name {
+    color: #6c6c80;
+}
+
+body.dark-mode .weekly-empty {
+    color: #6c6c80;
+}
+
+body.dark-mode .weekly-toggle {
+    background: linear-gradient(135deg, #1a1a2e 0%, #252540 100%);
+}
+
+body.dark-mode .weekly-toggle:hover {
+    background: linear-gradient(135deg, #252540 0%, #2f2f50 100%);
+}
+
+body.dark-mode .weekly-overlay {
+    background: rgba(0,0,0,0.5);
 }

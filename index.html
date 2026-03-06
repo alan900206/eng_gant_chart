@@ -8,6 +8,19 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <!-- 左側本週任務面板 -->
+    <div class="weekly-panel" id="weeklyPanel">
+        <div class="weekly-panel-header">
+            <h3>📋 本週任務</h3>
+            <span class="weekly-date-range" id="weeklyDateRange"></span>
+        </div>
+        <div class="weekly-panel-body" id="weeklyTaskList">
+            <!-- 由 JavaScript 動態生成 -->
+        </div>
+    </div>
+    <button class="weekly-toggle" id="weeklyToggle" title="本週任務">📋</button>
+    <div class="weekly-overlay" id="weeklyOverlay"></div>
+
     <div class="container">
         <header>
             <h1>📚 英文口說課程專案進度追蹤</h1>

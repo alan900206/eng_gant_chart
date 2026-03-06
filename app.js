@@ -280,9 +280,33 @@ function setupHoverTooltip() {
                 tooltip.innerHTML = html;
             }
             
-            tooltip.style.left = (e.clientX + 15) + 'px';
-            tooltip.style.top = (e.clientY + 15) + 'px';
+            // 先顯示 tooltip 來取得真實尺寸
+            tooltip.style.left = '-9999px';
+            tooltip.style.top = '-9999px';
             tooltip.classList.add('visible');
+            
+            // 讀取真實尺寸
+            const ttWidth = tooltip.offsetWidth;
+            const ttHeight = tooltip.offsetHeight;
+            const margin = 15;
+            
+            let left = e.clientX + margin;
+            let top = e.clientY + margin;
+            
+            // 右側溢出 → 移到滑鼠左邊
+            if (left + ttWidth > window.innerWidth - 10) {
+                left = e.clientX - ttWidth - margin;
+            }
+            // 下方溢出 → 移到滑鼠上方
+            if (top + ttHeight > window.innerHeight - 10) {
+                top = e.clientY - ttHeight - margin;
+            }
+            // 防止超出左/上邊界
+            if (left < 5) left = 5;
+            if (top < 5) top = 5;
+            
+            tooltip.style.left = left + 'px';
+            tooltip.style.top = top + 'px';
         } else {
             if (currentHoveredTask) {
                 currentHoveredTask = null;

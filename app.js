@@ -741,26 +741,6 @@ function loadFromLocalStorage() {
     }
 }
 
-// ============ 匯出資料 ============
-function exportData() {
-    const data = {
-        tasks: tasks,
-        categories: categories,
-        exportDate: new Date().toISOString()
-    };
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `英文口說課程甘特圖_${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
 // ============ 本週任務面板 ============
 function refreshWeeklyPanelIfOpen() {
     const panel = document.getElementById('weeklyPanel');
@@ -918,9 +898,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('categoryBtn').addEventListener('click', openCategoryModal);
     document.getElementById('closeCategoryModal').addEventListener('click', closeCategoryModal);
     document.getElementById('addCategoryBtn').addEventListener('click', addCategory);
-    
-    // 匯出按鈕
-    document.getElementById('exportBtn').addEventListener('click', exportData);
     
     // 搜尋與篩選
     document.getElementById('searchInput').addEventListener('input', renderTaskList);

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甘特圖 - 進度追蹤</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.css">
+    <link rel="stylesheet" href="styles.css?v=2.5">
+</head>
+<body>
+    <!-- 左側本週任務面板 -->
+    <div class="weekly-panel" id="weeklyPanel">
+        <div class="weekly-panel-header">
+            <h3>📋 本週任務</h3>
+            <span class="weekly-date-range" id="weeklyDateRange"></span>
+        </div>
+        <div class="weekly-stats" id="weeklyStats">
+            <!-- 統計信息 -->
+        </div>
+        <div class="weekly-panel-body" id="weeklyTaskList">
+            <!-- 由 JavaScript 動態生成 -->
+        </div>
+    </div>
+    <button class="weekly-toggle" id="weeklyToggle" title="本週任務">📋</button>
+    <div class="weekly-overlay" id="weeklyOverlay"></div>
+
+    <div class="container">
+        <header>
+            <h1 id="pageTitle">📚 英文口說課程專案進度追蹤</h1>
+            <p class="subtitle" id="pageSubtitle">Q2 (3-5月) → Q3 (6-8月) → Q4 (9-11月) 課程規劃甘特圖</p>
+        </header>
+
+        <div class="controls">
+            <div class="view-modes">
+                <button class="btn" data-mode="Day">日</button>
+                <button class="btn active" data-mode="Week">週</button>
+                <button class="btn" data-mode="Month">月</button>
+            </div>
+            <div class="actions">
+                <button class="btn" id="darkModeBtn" title="切換深色模式">🌙</button>
+                <button class="btn btn-primary" id="addTaskBtn">+ 新增任務</button>
+                <button class="btn" style="background:#e67e22;color:white;" id="categoryBtn">🏷️ 管理類別</button>
+            </div>
+        </div>
+
+        <div class="gantt-outer gantt-locked">
+            <div class="gantt-wrapper" id="ganttWrapper">
+                <svg id="gantt"></svg>
+            </div>
+        </div>
+
+        <!-- 懸浮提示框 -->
+        <div class="hover-tooltip" id="hoverTooltip"></div>
+
+        <div class="legend" id="legendContainer">
+            <!-- 圖例將由 JavaScript 動態生成 -->
+        </div>
+
+        <div class="task-panel" id="taskPanel">
+            <div class="panel-header">
+                <h3>待辦事項清單</h3>
+                <div class="search-filter">
+                    <input type="text" id="searchInput" placeholder="🔍 搜尋任務..." />
+                    <select id="filterCategory">
+                        <option value="">全部類別</option>
+                    </select>
+                    <select id="filterStatus">
+                        <option value="">全部狀態</option>
+                        <option value="completed">已完成</option>
+                        <option value="incomplete">未完成</option>
+                    </select>
+                </div>
+            </div>
+            <div class="task-list" id="taskList">
+                <!-- 任務列表將由 JavaScript 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 新增/編輯任務的彈窗 -->
+        <div class="modal" id="taskModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">新增任務</h3>
+                    <button class="close-btn" id="closeModal">&times;</button>
+                </div>
+                <form id="taskForm">
+                    <div class="form-group">
+                        <label for="taskName">任務名稱</label>
+                        <input type="text" id="taskName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskStart">開始日期</label>
+                        <input type="date" id="taskStart" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskEnd">結束日期</label>
+                        <input type="date" id="taskEnd" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskCategory">類別</label>
+                        <select id="taskCategory">
+                            <!-- 由 JavaScript 動態生成 -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskDependency">前置任務 (箭頭來源)</label>
+                        <select id="taskDependency">
+                            <option value="">無</option>
+                            <!-- 由 JavaScript 動態生成 -->
+                        </select>
+                        <small style="color:#6c757d;font-size:0.85rem;">選擇後會顯示從該任務指向此任務的箭頭</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskNotes">備註 (Notes)</label>
+                        <textarea id="taskNotes" rows="3" placeholder="輸入備註..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">取消</button>
+                        <button type="submit" class="btn btn-primary">儲存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 類別管理彈窗 -->
+        <div class="modal" id="categoryModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>管理類別</h3>
+                    <button class="close-btn" id="closeCategoryModal">&times;</button>
+                </div>
+                <div class="category-manager">
+                    <div class="add-category-form">
+                        <input type="text" id="newCategoryId" placeholder="類別代碼 (英文)" maxlength="20">
+                        <input type="text" id="newCategoryName" placeholder="類別名稱">
+                        <input type="color" id="newCategoryColor" value="#667eea">
+                        <button class="btn btn-primary" id="addCategoryBtn">新增</button>
+                    </div>
+                    <div class="category-list" id="categoryList">
+                        <!-- 由 JavaScript 動態生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.1/dist/frappe-gantt.min.js"></script>
+    <script src="app.js?v=2.5"></script>
+</body>
+</html>

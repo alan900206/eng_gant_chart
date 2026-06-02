@@ -7,27 +7,62 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #6366f1 100%);
+    background: #ece6db;
     background-attachment: fixed;
     min-height: 100vh;
     padding: 30px 40px;
 }
 
-/* ============ 左側本週任務面板 ============ */
+/* ============ 本週面板統計信息 ============ */
+.weekly-stats {
+    padding: 12px 20px;
+    background: rgba(74, 103, 65, 0.08);
+    border-bottom: 1px solid rgba(74, 103, 65, 0.15);
+}
+
+.weekly-stats-content {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #4a6741;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.stat-number.urgent {
+    color: #e74c3c;
+}
 .weekly-panel {
     position: fixed;
     top: 0;
     left: -340px;
     width: 340px;
     height: 100vh;
-    background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
-    box-shadow: 4px 0 25px rgba(102, 126, 234, 0.12);
+    background: #ece6db;
+    box-shadow: 4px 0 25px rgba(74, 103, 65, 0.12);
     z-index: 1000;
     transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-right: 1px solid rgba(102, 126, 234, 0.1);
+    border-right: 1px solid rgba(74, 103, 65, 0.1);
 }
 
 .weekly-panel.open {
@@ -36,7 +71,7 @@ body {
 
 .weekly-panel-header {
     padding: 24px 20px 16px;
-    background: linear-gradient(135deg, #4a00e0 0%, #667eea 50%, #00b4d8 100%);
+    background: #4a6741;
     color: white;
     position: relative;
     overflow: hidden;
@@ -87,15 +122,85 @@ body {
     border-bottom: 2px solid rgba(102, 126, 234, 0.3);
 }
 
+/* 優先度區段樣式 */
+.weekly-section-urgent .weekly-section-title {
+    color: #c62828;
+    border-bottom-color: #ffcdd2;
+}
+
+.weekly-section-critical .weekly-section-title {
+    color: #e65100;
+    border-bottom-color: #ffe0b2;
+}
+
+.weekly-section-warning .weekly-section-title {
+    color: #f57f17;
+    border-bottom-color: #fff9c4;
+}
+
+.weekly-section-normal .weekly-section-title {
+    color: #2e7d32;
+    border-bottom-color: #c8e6c9;
+}
+
+.weekly-section-completed .weekly-section-title {
+    color: #558b2f;
+    border-bottom-color: #9ccc65;
+}
+
 .weekly-task-card {
     padding: 12px 14px;
     border-radius: 8px;
     margin-bottom: 8px;
-    border-left: 4px solid #667eea;
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f1fa 100%);
+    border-left: 4px solid #4a6741;
+    background: #f5f3f0;
     transition: all 0.2s ease;
-    border: 1px solid rgba(102, 126, 234, 0.06);
-    border-left: 4px solid #667eea;
+    border: 1px solid rgba(74, 103, 65, 0.06);
+}
+
+.weekly-task-card .task-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: #2c3e50;
+    margin-bottom: 6px;
+}
+
+.weekly-task-card .weekly-task-checkbox {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    accent-color: #4a6741;
+}
+
+.weekly-task-card .task-meta-weekly {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.days-remaining {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.days-remaining.today {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.days-remaining.overdue {
+    background: #ffebee;
+    color: #c62828;
 }
 
 .weekly-task-card:hover {
@@ -160,14 +265,14 @@ body {
     transform: translateY(-50%);
     width: 40px;
     height: 50px;
-    background: linear-gradient(135deg, #4a00e0 0%, #667eea 100%);
+    background: #4a6741;
     color: white;
     border: none;
     border-radius: 0 10px 10px 0;
     cursor: pointer;
     font-size: 1.1rem;
     z-index: 1001;
-    box-shadow: 3px 0 12px rgba(102, 126, 234, 0.25);
+    box-shadow: 3px 0 12px rgba(74, 103, 65, 0.25);
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
@@ -176,22 +281,21 @@ body {
 
 .weekly-toggle:hover {
     width: 48px;
-    background: linear-gradient(135deg, #5b21b6 0%, #818cf8 100%);
-    box-shadow: 3px 0 18px rgba(102, 126, 234, 0.35);
+    background: #5a7c59;
+    box-shadow: 3px 0 18px rgba(74, 103, 65, 0.35);
 }
 
 .weekly-toggle.shifted {
     left: 340px;
 }
 
-/* 面板開啟時的遮罩 */
 .weekly-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(74, 0, 224, 0.1);
+    background: rgba(74, 103, 65, 0.1);
     backdrop-filter: blur(2px);
     z-index: 999;
     opacity: 0;
@@ -207,18 +311,18 @@ body {
 .container {
     max-width: 1400px;
     margin: 0 auto;
-    background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+    background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 80px rgba(102, 126, 234, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 80px rgba(74, 103, 65, 0.08);
     overflow-x: hidden;
     overflow-y: visible;
     padding-bottom: 20px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
+    border: 1px solid rgba(74, 103, 65, 0.1);
 }
 
 /* 頭部樣式 */
 header {
-    background: linear-gradient(135deg, #4a00e0 0%, #667eea 50%, #00b4d8 100%);
+    background: #4a6741;
     color: white;
     padding: 30px 40px;
     text-align: center;
@@ -256,8 +360,8 @@ header .subtitle {
     justify-content: space-between;
     align-items: center;
     padding: 20px 40px;
-    background: linear-gradient(180deg, rgba(248, 249, 255, 0.95) 0%, rgba(241, 243, 255, 0.9) 100%);
-    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
+    background: #ece6db;
+    border-bottom: 1px solid rgba(74, 103, 65, 0.1);
     flex-wrap: wrap;
     gap: 15px;
     backdrop-filter: blur(4px);
@@ -292,8 +396,8 @@ header .subtitle {
 
 .search-filter input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.12);
     background: white;
 }
 
@@ -309,8 +413,8 @@ header .subtitle {
 
 .search-filter select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.12);
     background: white;
 }
 
@@ -336,10 +440,10 @@ header .subtitle {
 }
 
 .view-modes .btn.active {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #4a6741;
     color: white;
     border-color: transparent;
-    box-shadow: 0 3px 12px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 3px 12px rgba(74, 103, 65, 0.35);
 }
 
 .view-modes .btn:hover:not(.active) {
@@ -349,22 +453,22 @@ header .subtitle {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #4a6741;
     color: white;
 }
 
 .btn-primary:hover {
-    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.45);
+    box-shadow: 0 6px 25px rgba(74, 103, 65, 0.45);
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #6c757d, #5a6268);
+    background: #7f8c8d;
     color: white;
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(135deg, #5a6268, #495057);
-    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    background: #6c7a7c;
+    box-shadow: 0 4px 12px rgba(127, 140, 141, 0.3);
 }
 
 /* 圖例樣式 */
@@ -372,11 +476,13 @@ header .subtitle {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
-    padding: 12px 40px;
-    background: linear-gradient(135deg, rgba(248, 249, 255, 0.9) 0%, rgba(241, 243, 255, 0.8) 100%);
-    border-bottom: 1px solid rgba(102, 126, 234, 0.08);
-    margin: 0 25px;
+    padding: 16px 40px;
+    background: #ece6db;
+    border-top: 2px solid rgba(74, 103, 65, 0.15);
+    border-bottom: 2px solid rgba(74, 103, 65, 0.15);
+    margin: 20px 25px 15px 25px;
     border-radius: 8px;
+    justify-content: center;
 }
 
 .legend-item {
@@ -391,7 +497,7 @@ header .subtitle {
 }
 
 .legend-item:hover {
-    background: rgba(102, 126, 234, 0.06);
+    background: rgba(74, 103, 65, 0.06);
 }
 
 .legend-color {
@@ -411,12 +517,12 @@ header .subtitle {
 /* 甘特圖外層容器 */
 .gantt-outer {
     position: relative;
-    background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    background: #ffffff;
     margin: 15px 25px;
-    border: 1px solid rgba(102, 126, 234, 0.12);
+    border: 1px solid rgba(74, 103, 65, 0.12);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.06);
+    box-shadow: 0 4px 20px rgba(74, 103, 65, 0.06);
 }
 
 /* 甘特圖滾動容器 */
@@ -424,7 +530,7 @@ header .subtitle {
     padding: 10px 0;
     overflow-x: auto;
     overflow-y: visible;
-    background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    background: #ffffff;
     width: 100%;
     -webkit-overflow-scrolling: touch;
 }
@@ -439,12 +545,12 @@ header .subtitle {
 }
 
 .gantt-wrapper::-webkit-scrollbar-thumb {
-    background: #667eea;
+    background: #4a6741;
     border-radius: 7px;
 }
 
 .gantt-wrapper::-webkit-scrollbar-thumb:hover {
-    background: #764ba2;
+    background: #3d5636;
 }
 
 /* 確保甘特圖可以水平滾動 */
@@ -466,8 +572,8 @@ header .subtitle {
     display: flex;
     justify-content: flex-end;
     padding: 8px 20px;
-    background: linear-gradient(180deg, rgba(248, 249, 255, 0.9) 0%, rgba(241, 243, 255, 0.8) 100%);
-    border-top: 1px solid rgba(102, 126, 234, 0.08);
+    background: #ece6db;
+    border-top: 1px solid rgba(74, 103, 65, 0.08);
 }
 
 /* 鎖定按鈕 */
@@ -510,7 +616,7 @@ header .subtitle {
 
 /* Frappe Gantt 自訂樣式 */
 .gantt .bar {
-    fill: #667eea;
+    fill: #4a6741;
 }
 
 .gantt .bar-progress {
@@ -569,12 +675,12 @@ body.dark-mode .gantt text.bar-label {
 
 /* 任務面板 */
 .task-panel {
-    background: linear-gradient(180deg, rgba(248, 249, 255, 0.95) 0%, rgba(241, 243, 255, 0.85) 100%);
+    background: #ece6db;
     padding: 25px 40px 30px;
     margin: 15px 25px 0;
     border-radius: 12px;
-    border: 1px solid rgba(102, 126, 234, 0.1);
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.05);
+    border: 1px solid rgba(74, 103, 65, 0.1);
+    box-shadow: 0 4px 20px rgba(74, 103, 65, 0.05);
 }
 
 .panel-header {
@@ -589,10 +695,6 @@ body.dark-mode .gantt text.bar-label {
 .panel-header h3 {
     color: #2c3e50;
     font-size: 1.3rem;
-    background: linear-gradient(135deg, #2c3e50, #667eea);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .task-list {
@@ -602,15 +704,33 @@ body.dark-mode .gantt text.bar-label {
 }
 
 .task-item {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
+    background: #ffffff;
     border-radius: 12px;
     padding: 20px;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.08);
+    box-shadow: 0 4px 15px rgba(74, 103, 65, 0.08);
     transition: all 0.3s ease;
-    border-left: 4px solid #667eea;
-    border: 1px solid rgba(102, 126, 234, 0.08);
-    border-left: 4px solid #667eea;
+    border-left: 4px solid #4a6741;
+    border: 1px solid rgba(74, 103, 65, 0.08);
+    border-left: 4px solid #4a6741;
     position: relative;
+}
+
+.task-item .task-checkbox {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    accent-color: #4a6741;
+    margin-right: 5px;
+}
+
+.task-item.completed {
+    opacity: 0.65;
+    background: #f0f0f0;
+}
+
+.task-item.completed h4 {
+    text-decoration: line-through;
+    color: #95a5a6;
 }
 
 .task-item::before {
@@ -627,8 +747,8 @@ body.dark-mode .gantt text.bar-label {
 
 .task-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
-    border-color: rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 30px rgba(74, 103, 65, 0.15);
+    border-color: rgba(74, 103, 65, 0.15);
     border-left-width: 4px;
 }
 
@@ -716,7 +836,7 @@ body.dark-mode .gantt text.bar-label {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(74, 0, 224, 0.15);
+    background: rgba(74, 103, 65, 0.15);
     backdrop-filter: blur(4px);
     justify-content: center;
     align-items: center;
@@ -728,13 +848,13 @@ body.dark-mode .gantt text.bar-label {
 }
 
 .modal-content {
-    background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+    background: #ffffff;
     border-radius: 16px;
     width: 90%;
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 25px 70px rgba(102, 126, 234, 0.2), 0 0 0 1px rgba(102, 126, 234, 0.08);
+    box-shadow: 0 25px 70px rgba(74, 103, 65, 0.2), 0 0 0 1px rgba(74, 103, 65, 0.08);
 }
 
 .modal-header {
@@ -742,16 +862,13 @@ body.dark-mode .gantt text.bar-label {
     justify-content: space-between;
     align-items: center;
     padding: 20px 25px;
-    border-bottom: 1px solid rgba(102, 126, 234, 0.1);
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.03) 100%);
+    border-bottom: 1px solid rgba(74, 103, 65, 0.1);
+    background: #ece6db;
 }
 
 .modal-header h3 {
-    color: #2c3e50;
-    background: linear-gradient(135deg, #2c3e50, #667eea);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #4a6741;
+    font-size: 1.2rem;
 }
 
 .close-btn {
@@ -804,8 +921,8 @@ body.dark-mode .gantt text.bar-label {
 .form-group select:focus,
 .form-group textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.12);
     background: white;
 }
 
@@ -840,8 +957,8 @@ body.dark-mode .gantt text.bar-label {
 }
 
 .add-category-form input[type="text"]:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.12);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.12);
     background: white;
 }
 
@@ -867,16 +984,16 @@ body.dark-mode .gantt text.bar-label {
     align-items: center;
     gap: 12px;
     padding: 12px 15px;
-    background: linear-gradient(135deg, #f8f9ff 0%, #f0f1fa 100%);
+    background: #f5f3f0;
     border-radius: 8px;
     transition: all 0.3s ease;
-    border: 1px solid rgba(102, 126, 234, 0.06);
+    border: 1px solid rgba(74, 103, 65, 0.06);
 }
 
 .category-item:hover {
-    background: linear-gradient(135deg, #eef0ff 0%, #e8eafa 100%);
-    border-color: rgba(102, 126, 234, 0.15);
-    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.1);
+    background: #f0e9e0;
+    border-color: rgba(74, 103, 65, 0.15);
+    box-shadow: 0 2px 10px rgba(74, 103, 65, 0.1);
 }
 
 .category-item .color-dot {
@@ -884,6 +1001,7 @@ body.dark-mode .gantt text.bar-label {
     height: 20px;
     border-radius: 4px;
     flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(74, 103, 65, 0.1);
 }
 
 .category-item .category-info {
@@ -1017,30 +1135,30 @@ body.dark-mode .gantt text.bar-label {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(241, 243, 255, 0.8);
+    background: #f5f0eb;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: #4a6741;
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #764ba2, #9b59b6);
+    background: #3d5636;
 }
 
 /* 懸浮提示框 */
 .hover-tooltip {
     position: fixed;
-    background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(74, 0, 224, 0.85));
+    background: rgba(44, 62, 80, 0.95);
     color: white;
     padding: 12px 16px;
     border-radius: 10px;
     font-size: 0.9rem;
     line-height: 1.5;
     max-width: 300px;
-    box-shadow: 0 8px 30px rgba(74, 0, 224, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.1);
     z-index: 9999;
     pointer-events: none;
     opacity: 0;
@@ -1079,7 +1197,7 @@ body.dark-mode .gantt text.bar-label {
 /* 任務完成狀態 */
 .task-item.completed {
     opacity: 0.65;
-    background: linear-gradient(135deg, #f3f4f6 0%, #e8e9f0 100%);
+    background: #f0f0f0;
 }
 
 .task-item.completed h4 {
@@ -1091,18 +1209,18 @@ body.dark-mode .gantt text.bar-label {
     width: 20px;
     height: 20px;
     cursor: pointer;
-    accent-color: #667eea;
+    accent-color: #4a6741;
 }
 
 /* 拖曳排序 */
 .task-item.dragging {
     opacity: 0.5;
     transform: scale(1.02);
-    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 12px 35px rgba(74, 103, 65, 0.35);
 }
 
 .task-item.drag-over {
-    border-top: 3px solid #667eea;
+    border-top: 3px solid #4a6741;
 }
 
 /* ============================== */
@@ -1111,89 +1229,86 @@ body.dark-mode .gantt text.bar-label {
 
 /* --- 基底 / 背景 --- */
 body.dark-mode {
-    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #172554 100%);
+    background: #2a3a2f;
 }
 
 body.dark-mode .container {
-    background: rgba(15, 23, 42, 0.92);
+    background: #3d4a40;
     color: #e2e8f0;
-    border: 1px solid rgba(99, 102, 241, 0.15);
+    border: 1px solid rgba(74, 103, 65, 0.15);
 }
 
 /* --- Header --- */
 body.dark-mode header {
-    background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #0c4a6e 100%);
-    border-bottom: 1px solid rgba(99, 102, 241, 0.25);
+    background: #2a3a2f;
+    border-bottom: 1px solid rgba(74, 103, 65, 0.25);
 }
 
 body.dark-mode header h1 {
-    background: linear-gradient(135deg, #a5b4fc, #67e8f9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: #d4c5b0;
 }
 
 body.dark-mode header .subtitle {
-    color: #94a3b8;
+    color: #d4c5b0;
 }
 
 /* --- Controls 控制列 --- */
 body.dark-mode .controls {
-    background: linear-gradient(180deg, rgba(30, 27, 75, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%);
-    border-bottom-color: rgba(99, 102, 241, 0.2);
+    background: #3d4a40;
+    border-bottom-color: rgba(74, 103, 65, 0.2);
 }
 
 /* --- Legend 圖例 --- */
 body.dark-mode .legend {
-    background: rgba(30, 27, 75, 0.35);
-    border-color: rgba(99, 102, 241, 0.15);
+    background: #3d4a40;
+    border-top-color: rgba(74, 103, 65, 0.25);
+    border-bottom-color: rgba(74, 103, 65, 0.25);
 }
 
 body.dark-mode .legend-item {
     color: #cbd5e1;
 }
 
-/* --- 按鈕 --- */
 body.dark-mode .btn {
     background: rgba(51, 65, 85, 0.7);
     color: #e2e8f0;
-    border: 1px solid rgba(99, 102, 241, 0.2);
+    border: 1px solid rgba(74, 103, 65, 0.2);
     backdrop-filter: blur(4px);
 }
 
 body.dark-mode .btn:hover {
-    background: rgba(99, 102, 241, 0.25);
-    border-color: rgba(99, 102, 241, 0.5);
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);
+    background: rgba(74, 103, 65, 0.25);
+    border-color: rgba(74, 103, 65, 0.5);
+    box-shadow: 0 4px 15px rgba(74, 103, 65, 0.2);
 }
 
 body.dark-mode .view-modes .btn {
-    background: rgba(30, 41, 59, 0.8);
-    border: 2px solid rgba(99, 102, 241, 0.15);
-    color: #94a3b8;
+    background: rgba(61, 74, 61, 0.8);
+    border: 2px solid rgba(74, 103, 65, 0.15);
+    color: #c0cdb8;
 }
 
 body.dark-mode .view-modes .btn.active {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    border-color: #6366f1;
-    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    background: #4a6741;
+    color: #e8dcc8;
+    border-color: #4a6741;
+    box-shadow: 0 4px 15px rgba(74, 103, 65, 0.4);
 }
 
 body.dark-mode .view-modes .btn:hover:not(.active) {
-    border-color: rgba(99, 102, 241, 0.5);
-    color: #a5b4fc;
-    background: rgba(99, 102, 241, 0.1);
+    border-color: rgba(74, 103, 65, 0.5);
+    color: #d4c5b0;
+    background: rgba(74, 103, 65, 0.1);
 }
 
 body.dark-mode .btn-primary {
-    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    background: #4a6741;
     color: white;
     border-color: transparent;
 }
 
 body.dark-mode .btn-primary:hover {
-    box-shadow: 0 6px 25px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 6px 25px rgba(74, 103, 65, 0.5);
 }
 
 body.dark-mode .btn-secondary {
@@ -1221,15 +1336,15 @@ body.dark-mode #categoryBtn:hover {
 /* --- Search/Filter 搜尋 --- */
 body.dark-mode .search-filter input,
 body.dark-mode .search-filter select {
-    background: rgba(30, 41, 59, 0.8);
-    border: 2px solid rgba(99, 102, 241, 0.2);
+    background: rgba(61, 74, 61, 0.8);
+    border: 2px solid rgba(74, 103, 65, 0.2);
     color: #e2e8f0;
 }
 
 body.dark-mode .search-filter input:focus,
 body.dark-mode .search-filter select:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.15);
 }
 
 body.dark-mode .search-filter input::placeholder {
@@ -1239,17 +1354,17 @@ body.dark-mode .search-filter input::placeholder {
 /* --- Gantt 甘特圖區域 --- */
 body.dark-mode .gantt-outer,
 body.dark-mode .gantt-wrapper {
-    background: rgba(15, 23, 42, 0.7);
+    background: #3d4a40;
 }
 
 body.dark-mode .gantt-outer {
-    border-color: rgba(99, 102, 241, 0.2);
-    box-shadow: inset 0 0 30px rgba(99, 102, 241, 0.03);
+    border-color: rgba(74, 103, 65, 0.2);
+    box-shadow: inset 0 0 30px rgba(74, 103, 65, 0.03);
 }
 
 body.dark-mode .gantt-footer {
-    background: rgba(30, 27, 75, 0.4);
-    border-top-color: rgba(99, 102, 241, 0.15);
+    background: #3d4a40;
+    border-top-color: rgba(74, 103, 65, 0.15);
 }
 
 body.dark-mode .gantt .grid-header {
@@ -1265,52 +1380,52 @@ body.dark-mode .gantt .grid-row:nth-child(even) {
 }
 
 body.dark-mode .gantt .row-line {
-    stroke: rgba(99, 102, 241, 0.1);
+    stroke: rgba(74, 103, 65, 0.1);
 }
 
 body.dark-mode .gantt .tick {
-    stroke: rgba(99, 102, 241, 0.08);
+    stroke: rgba(74, 103, 65, 0.08);
 }
 
 body.dark-mode .gantt .lower-text {
-    fill: #94a3b8;
+    fill: #c0cdb8;
 }
 
 body.dark-mode .gantt .upper-text {
-    fill: #a5b4fc;
+    fill: #d4c5b0;
 }
 
 body.dark-mode .gantt .today-highlight {
-    fill: rgba(99, 102, 241, 0.08);
+    fill: rgba(74, 103, 65, 0.08);
 }
 
 /* --- Scrollbar --- */
 body.dark-mode .gantt-wrapper::-webkit-scrollbar-track {
-    background: rgba(30, 27, 75, 0.5);
+    background: #2a3a2f;
 }
 
 body.dark-mode .gantt-wrapper::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    background: #4a6741;
 }
 
 body.dark-mode .gantt-wrapper::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    background: #5a7c59;
 }
 
 /* --- Task Panel 任務面板 --- */
 body.dark-mode .task-panel {
-    background: linear-gradient(180deg, rgba(30, 27, 75, 0.35) 0%, rgba(15, 23, 42, 0.5) 100%);
-    border-color: rgba(99, 102, 241, 0.15);
+    background: #3d4a40;
+    border-color: rgba(74, 103, 65, 0.15);
     backdrop-filter: blur(6px);
 }
 
 body.dark-mode .panel-header {
     background: transparent;
-    border-bottom-color: rgba(99, 102, 241, 0.15);
+    border-bottom-color: rgba(74, 103, 65, 0.15);
 }
 
 body.dark-mode .panel-header h3 {
-    color: #c7d2fe;
+    color: #d4c5b0;
 }
 
 body.dark-mode .panel-header small {
@@ -1319,15 +1434,15 @@ body.dark-mode .panel-header small {
 
 /* --- Task Cards 任務卡片 --- */
 body.dark-mode .task-item {
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 27, 75, 0.4) 100%);
-    border-color: rgba(99, 102, 241, 0.12);
+    background: #3d4a40;
+    border-color: rgba(74, 103, 65, 0.12);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 body.dark-mode .task-item:hover {
-    background: linear-gradient(135deg, rgba(49, 46, 129, 0.4) 0%, rgba(30, 41, 59, 0.7) 100%);
-    border-color: rgba(99, 102, 241, 0.3);
-    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    background: #4a5a4f;
+    border-color: rgba(74, 103, 65, 0.3);
+    box-shadow: 0 8px 25px rgba(74, 103, 65, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 body.dark-mode .task-item h4 {
@@ -1335,7 +1450,7 @@ body.dark-mode .task-item h4 {
 }
 
 body.dark-mode .task-item.completed {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(30, 27, 75, 0.2) 100%);
+    background: #2a3a2f;
     opacity: 0.55;
 }
 
@@ -1386,27 +1501,27 @@ body.dark-mode .task-actions .btn-secondary:hover {
 }
 
 body.dark-mode .task-item.dragging {
-    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.35);
+    box-shadow: 0 12px 35px rgba(74, 103, 65, 0.35);
 }
 
 body.dark-mode .task-item.drag-over {
-    border-top: 3px solid #818cf8;
+    border-top: 3px solid #5a7c59;
 }
 
 body.dark-mode .task-checkbox {
-    accent-color: #6366f1;
+    accent-color: #4a6741;
 }
 
 /* --- Category Manager 類別管理 --- */
 body.dark-mode .category-item {
-    background: rgba(30, 41, 59, 0.8);
-    color: #cbd5e1;
-    border: 1px solid rgba(99, 102, 241, 0.1);
+    background: #3d4a40;
+    color: #d4c5b0;
+    border: 1px solid rgba(74, 103, 65, 0.1);
 }
 
 body.dark-mode .category-item:hover {
-    background: rgba(49, 46, 129, 0.3);
-    border-color: rgba(99, 102, 241, 0.25);
+    background: #4a5a4f;
+    border-color: rgba(74, 103, 65, 0.25);
 }
 
 body.dark-mode .category-item .cat-name {
@@ -1422,14 +1537,14 @@ body.dark-mode .category-manager {
 }
 
 body.dark-mode .add-category-form input[type="text"] {
-    background: rgba(30, 41, 59, 0.8);
-    border-color: rgba(99, 102, 241, 0.2);
+    background: #3d4a40;
+    border-color: rgba(74, 103, 65, 0.2);
     color: #e2e8f0;
 }
 
 body.dark-mode .add-category-form input[type="text"]:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    border-color: #4a6741;
+    box-shadow: 0 0 0 3px rgba(74, 103, 65, 0.15);
 }
 
 /* --- Modal 彈窗 --- */
@@ -1439,18 +1554,18 @@ body.dark-mode .modal {
 }
 
 body.dark-mode .modal-content {
-    background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.1);
+    background: #3d4a40;
+    border: 1px solid rgba(74, 103, 65, 0.2);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5), 0 0 40px rgba(74, 103, 65, 0.1);
 }
 
 body.dark-mode .modal-header {
-    background: linear-gradient(135deg, rgba(49, 46, 129, 0.5) 0%, rgba(30, 27, 75, 0.5) 100%);
-    border-bottom-color: rgba(99, 102, 241, 0.2);
+    background: #3d4a40;
+    border-bottom-color: rgba(74, 103, 65, 0.2);
 }
 
 body.dark-mode .modal-header h3 {
-    color: #c7d2fe;
+    color: #d4c5b0;
 }
 
 body.dark-mode .close-btn {
@@ -1581,4 +1696,123 @@ body.dark-mode .weekly-toggle:hover {
 
 body.dark-mode .weekly-overlay {
     background: rgba(0, 0, 0, 0.5);
+}
+
+/* ============ 新增優化相關樣式 ============ */
+
+/* 本週任務統計 - 深色模式 */
+body.dark-mode .weekly-stats {
+    background: rgba(99, 102, 241, 0.08);
+    border-bottom-color: rgba(99, 102, 241, 0.2);
+}
+
+body.dark-mode .stat-label {
+    color: #a5b4fc;
+}
+
+body.dark-mode .stat-number {
+    color: #e2e8f0;
+}
+
+/* 優先度顏色區段 */
+.weekly-task-card.weekly-task-urgent {
+    background: linear-gradient(135deg, rgba(226, 15, 15, 0.08), rgba(255, 107, 107, 0.05));
+    border-left-color: #e74c3c;
+}
+
+.weekly-task-card.weekly-task-critical {
+    background: linear-gradient(135deg, rgba(230, 126, 34, 0.08), rgba(255, 152, 0, 0.05));
+    border-left-color: #e67e22;
+}
+
+.weekly-task-card.weekly-task-warning {
+    background: linear-gradient(135deg, rgba(241, 196, 15, 0.08), rgba(255, 235, 59, 0.05));
+    border-left-color: #f39c12;
+}
+
+.weekly-task-card.weekly-task-normal {
+    background: linear-gradient(135deg, rgba(46, 125, 50, 0.08), rgba(76, 175, 80, 0.05));
+    border-left-color: #27ae60;
+}
+
+.weekly-task-card.weekly-task-completed {
+    background: linear-gradient(135deg, rgba(84, 139, 43, 0.08), rgba(156, 204, 101, 0.05));
+    border-left-color: #7cb342;
+    opacity: 0.7;
+}
+
+body.dark-mode .weekly-task-card.weekly-task-urgent {
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(239, 68, 68, 0.08));
+}
+
+body.dark-mode .weekly-task-card.weekly-task-critical {
+    background: linear-gradient(135deg, rgba(234, 88, 12, 0.15), rgba(249, 115, 22, 0.08));
+}
+
+body.dark-mode .weekly-task-card.weekly-task-warning {
+    background: linear-gradient(135deg, rgba(202, 138, 4, 0.15), rgba(234, 179, 8, 0.08));
+}
+
+body.dark-mode .weekly-task-card.weekly-task-normal {
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.15), rgba(34, 197, 94, 0.08));
+}
+
+body.dark-mode .weekly-task-card.weekly-task-completed {
+    background: linear-gradient(135deg, rgba(84, 139, 43, 0.15), rgba(132, 204, 22, 0.08));
+}
+
+/* 驗證警告框 */
+#taskValidationWarning {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body.dark-mode #taskValidationWarning {
+    --tw-bg-opacity: 1;
+    background-color: rgba(138, 63, 69, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+}
+
+body.dark-mode #taskValidationWarning strong {
+    color: #f87171;
+}
+
+body.dark-mode #taskValidationWarning li {
+    color: #fca5a5;
+}
+
+/* 完成任務的勾選框樣式 */
+.weekly-task-checkbox:checked {
+    accent-color: #27ae60;
+}
+
+body.dark-mode .weekly-task-checkbox:checked {
+    accent-color: #4ade80;
+}
+
+/* ============ 今日線指示器 ============ */
+.today-indicator-line {
+    pointer-events: none;
+}
+
+body.dark-mode .today-indicator-line {
+    stroke: #f87171 !important;
+    opacity: 0.8 !important;
+}
+
+/* 光標懸停時突顯 */
+#gantt:hover .today-indicator-line {
+    stroke-width: 3 !important;
+    opacity: 0.9 !important;
 }

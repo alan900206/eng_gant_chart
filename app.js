@@ -1,5 +1,29 @@
 // 英文口說課程專案甘特圖 - 主要應用程式邏輯
 
+// ============ 項目配置 ============
+const PROJECT_CONFIGS = {
+    'english-q2q4': {
+        title: '📚 英文口說課程專案進度追蹤',
+        subtitle: 'Q2 (3-5月) → Q3 (6-8月) → Q4 (9-11月) 課程規劃甘特圖',
+        storageKey: 'ganttProject_english-q2q4'
+    },
+    'math-courses': {
+        title: '🔢 數學課程教學計劃',
+        subtitle: '代數 (1-3月) → 幾何 (4-6月) → 微積分 (7-9月)',
+        storageKey: 'ganttProject_math-courses'
+    },
+    'design-system': {
+        title: '🎨 設計系統建置',
+        subtitle: 'UI/UX 開發流程 - 規劃 → 設計 → 開發 → 測試',
+        storageKey: 'ganttProject_design-system'
+    },
+    'software-lifecycle': {
+        title: '🏗️ 軟體開發生命週期',
+        subtitle: '需求分析 → 開發 → 測試 → 上線',
+        storageKey: 'ganttProject_software-lifecycle'
+    }
+};
+
 // ============ 預設類別資料 ============
 let categories = {
     'q2': { name: 'Q2 課程 (3-5月)', color: '#3498db' },
@@ -19,7 +43,8 @@ let tasks = [
         start: '2026-03-30',
         end: '2026-04-10',
         category: 'q3-prep',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921216957',
@@ -27,7 +52,8 @@ let tasks = [
         start: '2026-04-13',
         end: '2026-04-17',
         category: 'milestone',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921303107',
@@ -35,7 +61,8 @@ let tasks = [
         start: '2026-04-20',
         end: '2026-04-25',
         category: 'q3-prep',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921372123',
@@ -43,7 +70,8 @@ let tasks = [
         start: '2026-04-13',
         end: '2026-04-17',
         category: 'q3-prep',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921464963',
@@ -51,7 +79,8 @@ let tasks = [
         start: '2026-06-09',
         end: '2026-06-09',
         category: 'milestone',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921493547',
@@ -59,7 +88,8 @@ let tasks = [
         start: '2026-08-21',
         end: '2026-08-21',
         category: 'milestone',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921527863',
@@ -67,7 +97,8 @@ let tasks = [
         start: '2026-09-08',
         end: '2026-09-08',
         category: 'milestone',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     },
     {
         id: 'task-1771921655597',
@@ -75,15 +106,17 @@ let tasks = [
         start: '2026-11-20',
         end: '2026-11-20',
         category: 'milestone',
-        dependencies: ''
+        dependencies: '',
+        completed: false
     }
 ];
 
 // ============ 全域變數 ============
 let gantt;
-let currentViewMode = 'Day';
+let currentViewMode = 'Week';  // 改為週視圖為預設
 let editingTaskId = null;
 let isLocked = true;
+let currentProjectId = 'english-q2q4';  // 當前項目 ID
 
 // ============ 動態套用類別顏色 ============
 function applyDynamicStyles() {
@@ -178,6 +211,7 @@ function initGantt() {
                     <p><strong>開始：</strong>${task.start.toLocaleDateString('zh-TW')}</p>
                     <p><strong>結束：</strong>${task._end.toLocaleDateString('zh-TW')}</p>
                     ${notes ? `<p><strong>備註：</strong>${notes}</p>` : ''}
+                    <p style="color: #999; font-size: 0.85rem; margin-top: 8px;">💡 雙擊可快速編輯</p>
                 </div>
             `;
         },
@@ -197,6 +231,52 @@ function initGantt() {
     renderTaskList();
     updateCategorySelect();
     setupHoverTooltip();
+    setupGanttInteraction();
+    
+    // 自動滾動到今天的日期
+    scrollToToday();
+}
+
+// ============ 自動滾動到今天 ============
+function scrollToToday() {
+    // 延遲執行，確保 SVG 已完全渲染
+    setTimeout(() => {
+        const ganttWrapper = document.getElementById('ganttWrapper');
+        if (!ganttWrapper) return;
+        
+        const svg = ganttWrapper.querySelector('svg');
+        if (!svg) return;
+        
+        // 取得今天日期
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // 計算 SVG 中今天應該在的位置
+        // Frappe Gantt 預設格線寬度為 30px per day
+        const ganttContent = svg.querySelector('[data-date]');
+        if (!ganttContent) {
+            // 如果找不到具體日期元素，用另一種方法
+            // 取得最早任務的開始日期
+            if (tasks.length > 0) {
+                const minDate = new Date(Math.min(...tasks.map(t => new Date(t.start).getTime())));
+                const daysFromMin = Math.floor((today - minDate) / (1000 * 60 * 60 * 24));
+                const pixelsToScroll = Math.max(0, daysFromMin * 30 - 200);
+                ganttWrapper.scrollLeft = pixelsToScroll;
+            }
+        } else {
+            // 嘗試計算滾動位置
+            const svgRect = svg.getBoundingClientRect();
+            const wrapperRect = ganttWrapper.getBoundingClientRect();
+            
+            // 估計滾動位置（每天 30 像素）
+            if (tasks.length > 0) {
+                const minDate = new Date(Math.min(...tasks.map(t => new Date(t.start).getTime())));
+                const daysFromMin = Math.floor((today - minDate) / (1000 * 60 * 60 * 24));
+                const pixelsToScroll = Math.max(0, daysFromMin * 30 - 200);
+                ganttWrapper.scrollLeft = pixelsToScroll;
+            }
+        }
+    }, 500);
 }
 
 // ============ 深色模式 ============
@@ -319,6 +399,58 @@ function setupHoverTooltip() {
         currentHoveredTask = null;
         tooltip.classList.remove('visible');
     });
+    
+    // 添加「今日線」視覺指示
+    addTodayIndicator();
+}
+
+// ============ 添加今日線指示 ============
+function addTodayIndicator() {
+    const ganttWrapper = document.getElementById('ganttWrapper');
+    if (!ganttWrapper) return;
+    
+    setTimeout(() => {
+        const svg = ganttWrapper.querySelector('svg');
+        if (!svg) return;
+        
+        // 移除舊的今日線
+        const oldLine = svg.querySelector('.today-indicator-line');
+        if (oldLine) oldLine.remove();
+        
+        // 計算今天應該在的 x 位置
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (tasks.length === 0) return;
+        
+        const minDate = new Date(Math.min(...tasks.map(t => new Date(t.start).getTime())));
+        const daysFromMin = Math.floor((today - minDate) / (1000 * 60 * 60 * 24));
+        const xPosition = 80 + (daysFromMin * 30); // 80 是左邊界，30px per day
+        
+        // 建立今日線
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('class', 'today-indicator-line');
+        line.setAttribute('x1', xPosition);
+        line.setAttribute('y1', '0');
+        line.setAttribute('x2', xPosition);
+        line.setAttribute('y2', '100%');
+        line.setAttribute('stroke', '#e74c3c');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('stroke-dasharray', '5,5');
+        line.setAttribute('opacity', '0.7');
+        
+        // 添加標籤
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', xPosition + 5);
+        label.setAttribute('y', '20');
+        label.setAttribute('font-size', '12');
+        label.setAttribute('fill', '#e74c3c');
+        label.setAttribute('font-weight', 'bold');
+        label.textContent = '今天';
+        
+        svg.appendChild(line);
+        svg.appendChild(label);
+    }, 600);
 }
 
 // ============ 渲染任務清單 ============
@@ -539,6 +671,7 @@ function openModal(isEdit = false) {
     const modalTitle = document.getElementById('modalTitle');
     
     modalTitle.textContent = isEdit ? '編輯任務' : '新增任務';
+    clearValidationErrors(); // 清除之前的錯誤
     modal.classList.add('active');
 }
 
@@ -604,11 +737,20 @@ function handleFormSubmit(e) {
             end: end,
             category: category,
             dependencies: dependencies,
-            notes: notes
+            notes: notes,
+            completed: false
         };
         tasks.push(newTask);
     }
     
+    // 驗證衝突
+    const errors = validateTaskDependencies(editingTaskId);
+    if (errors.length > 0) {
+        displayValidationErrors(errors);
+        return; // 不關閉彈窗，讓用戶修正
+    }
+    
+    clearValidationErrors();
     closeModal();
     refreshGantt();
     saveToLocalStorage();
@@ -725,18 +867,32 @@ function changeViewMode(mode) {
 
 // ============ 本地儲存 ============
 function saveToLocalStorage() {
+    const config = PROJECT_CONFIGS[currentProjectId];
+    const storageKey = config ? config.storageKey : 'engCourseGantt_v2';
     const data = {
+        projectId: currentProjectId,
         tasks: tasks,
         categories: categories
     };
-    localStorage.setItem('engCourseGantt_v2', JSON.stringify(data));
+    localStorage.setItem(storageKey, JSON.stringify(data));
 }
 
 function loadFromLocalStorage() {
-    const saved = localStorage.getItem('engCourseGantt_v2');
+    const config = PROJECT_CONFIGS[currentProjectId];
+    const storageKey = config ? config.storageKey : 'engCourseGantt_v2';
+    const saved = localStorage.getItem(storageKey);
+    
     if (saved) {
         const data = JSON.parse(saved);
-        if (data.tasks) tasks = data.tasks;
+        if (data.tasks) {
+            tasks = data.tasks;
+            // 確保所有舊任務都有 completed 字段
+            tasks.forEach(task => {
+                if (!task.hasOwnProperty('completed')) {
+                    task.completed = false;
+                }
+            });
+        }
         if (data.categories) categories = data.categories;
     }
 }
@@ -786,60 +942,88 @@ function renderWeeklyTasks() {
     const { start, end } = getWeekRange();
     const listEl = document.getElementById('weeklyTaskList');
     const dateRangeEl = document.getElementById('weeklyDateRange');
+    const statsEl = document.getElementById('weeklyStats');
     
     // 顯示日期範圍
     const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
     dateRangeEl.textContent = `${fmt(start)} (一) ~ ${fmt(end)} (日)`;
     
-    // 分類任務
-    const starting = [];  // 本週開始
-    const ongoing = [];   // 進行中（跨週）
-    const ending = [];    // 本週結束
+    // 分類任務 - 按狀態區分
+    const urgent = [];      // 今天或逾期
+    const critical = [];    // 1-3天
+    const warning = [];     // 4-7天  
+    const normal = [];      // 遠期
+    const completed = [];   // 已完成
     
     tasks.forEach(task => {
-        const taskStart = new Date(task.start);
-        const taskEnd = new Date(task.end);
-        taskStart.setHours(0, 0, 0, 0);
-        taskEnd.setHours(23, 59, 59, 999);
+        // 優先顯示已完成的任務
+        if (task.completed) {
+            completed.push(task);
+            return;
+        }
         
-        // 任務與本週有交集
-        if (taskStart <= end && taskEnd >= start) {
-            const startsThisWeek = taskStart >= start && taskStart <= end;
-            const endsThisWeek = taskEnd >= start && taskEnd <= end;
-            
-            if (startsThisWeek && endsThisWeek) {
-                starting.push({ ...task, badge: 'starting', badgeText: '本週開始＆結束' });
-            } else if (startsThisWeek) {
-                starting.push({ ...task, badge: 'starting', badgeText: '本週開始' });
-            } else if (endsThisWeek) {
-                ending.push({ ...task, badge: 'ending', badgeText: '本週截止' });
-            } else {
-                ongoing.push({ ...task, badge: 'ongoing', badgeText: '進行中' });
-            }
+        const taskEnd = new Date(task.end);
+        const daysRemaining = calculateDaysRemaining(taskEnd);
+        const urgency = getUrgencyLevel(daysRemaining);
+        
+        const taskWithMeta = {
+            ...task,
+            daysRemaining,
+            urgency
+        };
+        
+        if (urgency.level === 'overdue' || urgency.level === 'today') {
+            urgent.push(taskWithMeta);
+        } else if (urgency.level === 'critical') {
+            critical.push(taskWithMeta);
+        } else if (urgency.level === 'warning') {
+            warning.push(taskWithMeta);
+        } else {
+            normal.push(taskWithMeta);
         }
     });
     
+    // 統計信息
+    const totalTasks = tasks.filter(t => !t.completed).length;
+    const completedCount = tasks.filter(t => t.completed).length;
+    const urgentCount = urgent.length + critical.length;
+    
+    statsEl.innerHTML = `
+        <div class="weekly-stats-content">
+            <div class="stat-item"><span class="stat-label">未完成</span><span class="stat-number">${totalTasks}</span></div>
+            <div class="stat-item"><span class="stat-label">已完成</span><span class="stat-number">${completedCount}</span></div>
+            <div class="stat-item"><span class="stat-label">緊急</span><span class="stat-number urgent">${urgentCount}</span></div>
+        </div>
+    `;
+    
     let html = '';
     
-    if (starting.length === 0 && ongoing.length === 0 && ending.length === 0) {
+    if (urgent.length === 0 && critical.length === 0 && warning.length === 0 && 
+        normal.length === 0 && completed.length === 0) {
         html = '<div class="weekly-empty">🎉 本週沒有任務</div>';
     } else {
-        if (starting.length > 0) {
-            html += renderWeeklySection('🚀 開始', starting);
+        if (urgent.length > 0) {
+            html += renderWeeklySection('🔴 今天/逾期', urgent, 'urgent');
         }
-        if (ongoing.length > 0) {
-            html += renderWeeklySection('🔄 進行中', ongoing);
+        if (critical.length > 0) {
+            html += renderWeeklySection('🟠 緊急 (1-3天)', critical, 'critical');
         }
-        if (ending.length > 0) {
-            html += renderWeeklySection('🏁 截止', ending);
+        if (warning.length > 0) {
+            html += renderWeeklySection('🟡 本週 (4-7天)', warning, 'warning');
+        }
+        if (normal.length > 0) {
+            html += renderWeeklySection('🟢 正常', normal, 'normal');
+        }
+        if (completed.length > 0) {
+            html += renderWeeklySection('✅ 已完成', completed, 'completed');
         }
     }
     
     listEl.innerHTML = html;
 }
 
-function renderWeeklySection(title, taskList) {
-    let html = `<div class="weekly-section">
+function renderWeeklySection(title, taskList, type) {
+    let html = `<div class="weekly-section weekly-section-${type}">
         <div class="weekly-section-title">${title}</div>`;
     
     taskList.forEach(task => {
@@ -847,11 +1031,29 @@ function renderWeeklySection(title, taskList) {
         const borderColor = cat ? cat.color : '#667eea';
         const completedClass = task.completed ? ' completed-task' : '';
         
+        let daysText = '';
+        if (!task.completed && task.daysRemaining !== undefined) {
+            const days = task.daysRemaining;
+            if (days < 0) {
+                daysText = `<span class="days-remaining overdue">逾期 ${Math.abs(days)} 天</span>`;
+            } else if (days === 0) {
+                daysText = `<span class="days-remaining today">今天</span>`;
+            } else {
+                daysText = `<span class="days-remaining">剩 ${days} 天</span>`;
+            }
+        }
+        
         html += `
-            <div class="weekly-task-card${completedClass}" style="border-left-color: ${borderColor};">
-                <div class="task-name">${task.completed ? '✅ ' : ''}${task.name}</div>
-                <div class="task-date">📅 ${task.start} ~ ${task.end}</div>
-                <span class="task-badge ${task.badge}">${task.badgeText}</span>
+            <div class="weekly-task-card${completedClass} weekly-task-${type}" style="border-left-color: ${borderColor};">
+                <div class="task-name">
+                    <input type="checkbox" class="weekly-task-checkbox" ${task.completed ? 'checked' : ''} 
+                        onchange="toggleTaskComplete('${task.id}')" title="標記完成">
+                    <span>${task.completed ? '✅ ' : ''}${task.name}</span>
+                </div>
+                <div class="task-meta-weekly">
+                    <span>📅 ${task.start}</span>
+                    ${daysText}
+                </div>
             </div>
         `;
     });
@@ -862,8 +1064,24 @@ function renderWeeklySection(title, taskList) {
 
 // ============ 事件監聽器 ============
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOMContentLoaded - 開始初始化甘特圖');
+    
+    // 讀取 URL 參數中的項目 ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('id');
+    if (projectId && PROJECT_CONFIGS[projectId]) {
+        currentProjectId = projectId;
+    }
+    
+    // 根據項目 ID 設置標題
+    const config = PROJECT_CONFIGS[currentProjectId];
+    if (config) {
+        setPageTitle(config.title, config.subtitle);
+    }
+    
     loadFromLocalStorage();
     initGantt();
+    console.log('✅ initGantt 完成 - 甘特圖初始化成功');
     
     // 本週任務面板
     document.getElementById('weeklyToggle').addEventListener('click', toggleWeeklyPanel);
@@ -925,6 +1143,167 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// ============ 衝突檢測 ============
+function validateTaskDependencies(taskId = null) {
+    const errors = [];
+    
+    tasks.forEach(task => {
+        // 跳過指定檢查的任務以外的（若有指定）
+        if (taskId && task.id !== taskId) return;
+        
+        // 1. 檢查自我依賴
+        if (task.dependencies === task.id) {
+            errors.push({
+                taskId: task.id,
+                type: 'self-dependency',
+                message: `❌ ${task.name}: 不能依賴於自己`
+            });
+        }
+        
+        // 2. 檢查日期衝突
+        if (task.start && task.end) {
+            const start = new Date(task.start);
+            const end = new Date(task.end);
+            if (start > end) {
+                errors.push({
+                    taskId: task.id,
+                    type: 'date-conflict',
+                    message: `⚠️ ${task.name}: 開始日期晚於結束日期`
+                });
+            }
+        }
+        
+        // 3. 檢查循環依賴
+        if (task.dependencies) {
+            const hasCycle = checkCyclicDependency(task.id, task.dependencies, new Set());
+            if (hasCycle) {
+                errors.push({
+                    taskId: task.id,
+                    type: 'cyclic-dependency',
+                    message: `🔄 ${task.name}: 存在循環依賴關係`
+                });
+            }
+        }
+        
+        // 4. 檢查前置任務的結束日期是否晚於此任務的開始日期
+        if (task.dependencies) {
+            const depTask = tasks.find(t => t.id === task.dependencies);
+            if (depTask && depTask.end && task.start) {
+                const depEnd = new Date(depTask.end);
+                const thisStart = new Date(task.start);
+                if (depEnd > thisStart) {
+                    errors.push({
+                        taskId: task.id,
+                        type: 'timeline-conflict',
+                        message: `📅 ${task.name}: 前置任務「${depTask.name}」結束時間晚於此任務開始時間`
+                    });
+                }
+            }
+        }
+    });
+    
+    return errors;
+}
+
+function checkCyclicDependency(currentTaskId, dependsOnTaskId, visited) {
+    if (visited.has(dependsOnTaskId)) {
+        return true; // 循環檢測到
+    }
+    
+    visited.add(dependsOnTaskId);
+    
+    const depTask = tasks.find(t => t.id === dependsOnTaskId);
+    if (!depTask || !depTask.dependencies) {
+        return false;
+    }
+    
+    if (depTask.dependencies === currentTaskId) {
+        return true; // 形成循環
+    }
+    
+    return checkCyclicDependency(currentTaskId, depTask.dependencies, visited);
+}
+
+function displayValidationErrors(errors) {
+    if (errors.length === 0) return;
+    
+    const errorHtml = errors.map(e => `<li>${e.message}</li>`).join('');
+    const errorList = `<ul style="margin: 10px 0; padding-left: 20px;">${errorHtml}</ul>`;
+    
+    // 在彈窗頂部顯示警告
+    let warningEl = document.getElementById('taskValidationWarning');
+    if (!warningEl) {
+        warningEl = document.createElement('div');
+        warningEl.id = 'taskValidationWarning';
+        const modalContent = document.querySelector('.modal-content');
+        modalContent.insertBefore(warningEl, modalContent.firstChild);
+    }
+    
+    warningEl.innerHTML = `
+        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px;">
+            <strong style="color: #856404;">⚠️ 檢測到以下問題：</strong>
+            ${errorList}
+        </div>
+    `;
+}
+
+function clearValidationErrors() {
+    const warningEl = document.getElementById('taskValidationWarning');
+    if (warningEl) {
+        warningEl.innerHTML = '';
+    }
+}
+
+// ============ 雙擊編輯 & 甘特圖交互 ============
+function setupGanttInteraction() {
+    const ganttWrapper = document.getElementById('ganttWrapper');
+    
+    ganttWrapper.addEventListener('dblclick', function(e) {
+        const svgEl = ganttWrapper.querySelector('svg');
+        if (!svgEl) return;
+        
+        const bars = svgEl.querySelectorAll('.bar-wrapper');
+        let found = null;
+        
+        for (const bar of bars) {
+            const rect = bar.querySelector('.bar');
+            if (!rect) continue;
+            const bbox = rect.getBoundingClientRect();
+            if (e.clientX >= bbox.left && e.clientX <= bbox.right &&
+                e.clientY >= bbox.top && e.clientY <= bbox.bottom) {
+                found = bar;
+                break;
+            }
+        }
+        
+        if (found) {
+            const taskId = found.getAttribute('data-id');
+            editTask(taskId);
+        }
+    });
+}
+
+// ============ 計算剩餘天數 ============
+function calculateDaysRemaining(endDate) {
+    const end = new Date(endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    end.setHours(0, 0, 0, 0);
+    
+    const diffTime = end - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+}
+
+function getUrgencyLevel(daysRemaining) {
+    if (daysRemaining < 0) return { level: 'overdue', label: '逾期', emoji: '🔴' };
+    if (daysRemaining === 0) return { level: 'today', label: '今天', emoji: '🔴' };
+    if (daysRemaining <= 3) return { level: 'critical', label: '緊急', emoji: '🟠' };
+    if (daysRemaining <= 7) return { level: 'warning', label: '本週', emoji: '🟡' };
+    return { level: 'normal', label: '正常', emoji: '🟢' };
+}
+
 // ============ 鍵盤快捷鍵 ============
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
@@ -940,3 +1319,31 @@ document.addEventListener('keydown', function(e) {
     // Ctrl+L 切換鎖定 - 已移除
     // 甘特圖現在永久唯讀
 });
+
+// ============ 全局 API - 設置頁面標題 ============
+window.setPageTitle = function(title, subtitle) {
+    const titleEl = document.getElementById('pageTitle');
+    const subtitleEl = document.getElementById('pageSubtitle');
+    
+    if (titleEl && title) {
+        titleEl.textContent = title;
+    }
+    
+    if (subtitleEl && subtitle !== undefined) {
+        subtitleEl.textContent = subtitle;
+        // 如果為空字符串，隱藏副標題
+        if (subtitle === '') {
+            subtitleEl.style.display = 'none';
+        } else {
+            subtitleEl.style.display = 'block';
+        }
+    }
+};
+
+// ============ 全局 API - 獲取當前標題 ============
+window.getPageTitle = function() {
+    return {
+        title: document.getElementById('pageTitle')?.textContent || '',
+        subtitle: document.getElementById('pageSubtitle')?.textContent || ''
+    };
+};

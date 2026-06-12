@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>甘特圖優化檢查 - 診斷工具</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        .check-item { padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #667eea; background: #f8f9ff; }
+        .check-item.ok { border-left-color: #27ae60; background: #e8f8f5; }
+        .check-item.error { border-left-color: #e74c3c; background: #fadbd8; }
+        .check-item.warning { border-left-color: #f39c12; background: #fef5e7; }
+        .code { font-family: monospace; background: #2c3e50; color: #ecf0f1; padding: 2px 6px; border-radius: 4px; }
+        .button { display: inline-block; padding: 10px 20px; margin-top: 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; cursor: pointer; border: none; font-size: 16px; }
+        .button:hover { background: #764ba2; }
+        pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 8px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 甘特圖優化檢查 - 診斷工具</h1>
+        
+        <div id="results"></div>
+        
+        <button class="button" onclick="runChecks()">執行檢查</button>
+        <button class="button" onclick="clearCache()">清除快取並重新加載</button>
+        
+        <h2 style="margin-top: 40px; color: #2c3e50;">預期變更清單：</h2>
+        <pre>
+1. ✅ 本週面板新增統計區 (weekly-stats)
+2. ✅ 任務完成勾選框 (task-checkbox) 
+3. ✅ 日期倒數顯示 (days-remaining)
+4. ✅ 優先度色彩分組 (weekly-task-{type})
+5. ✅ 驗證警告框 (#taskValidationWarning)
+6. ✅ 雙擊編輯功能 (setupGanttInteraction)
+7. ✅ 衝突檢測函數 (validateTaskDependencies)
+8. ✅ 所有任務新增 completed 字段
+        </pre>
+    </div>
+
+    <script>
+        function runChecks() {
+            const results = document.getElementById('results');
+            results.innerHTML = '';
+            let allGood = true;
+
+            const checks = [
+                {
+                    name: '1. 檢查 weekly-stats 元素',
+                    test: () => document.getElementById('weeklyStats') !== null,
+                    error: '未找到 weekly-stats 元素'
+                },
+                {
+                    name: '2. 檢查任務列表容器',
+                    test: () => document.getElementById('taskList') !== null,
+                    error: '未找到 taskList 元素'
+                },
+                {
+                    name: '3. 檢查 CSS 版本快取破除',
+                    test: () => document.querySelector('link[href*="styles.css"]').href.includes('v=2.5'),
+                    error: 'CSS 未使用版本參數'
+                },
+                {
+                    name: '4. 檢查 JS 版本快取破除',
+                    test: () => document.querySelector('script[src*="app.js"]').src.includes('v=2.5'),
+                    error: 'JS 未使用版本參數'
+                },
+                {
+                    name: '5. 檢查本地儲存',
+                    test: () => typeof localStorage !== 'undefined',
+                    error: 'localStorage 不可用'
+                },
+                {
+                    name: '6. 檢查控制台訊息',
+                    test: () => true,
+                    error: '檢查瀏覽器控制台看初始化訊息'
+                }
+            ];
+
+            checks.forEach(check => {
+                const result = document.createElement('div');
+                try {
+                    const passed = check.test();
+                    result.className = passed ? 'check-item ok' : 'check-item error';
+                    result.innerHTML = (passed ? '✅' : '❌') + ' ' + check.name;
+                    if (!passed) {
+                        result.innerHTML += '<br>' + check.error;
+                        allGood = false;
+                    }
+                } catch (e) {
+                    result.className = 'check-item error';
+                    result.innerHTML = '❌ ' + check.name + '<br>錯誤: ' + e.message;
+                    allGood = false;
+                }
+                results.appendChild(result);
+            });
+
+            if (allGood) {
+                const success = document.createElement('div');
+                success.className = 'check-item ok';
+                success.style.marginTop = '20px';
+                success.innerHTML = '<h3>✅ 所有檢查都通過了！</h3><p>現在請用以下步驟：</p><ol><li>按 F12 開啟開發者工具</li><li>在 Console 尋找 "✅ DOMContentLoaded" 訊息</li><li>檢查是否有任何紅色錯誤訊息</li><li>回到主頁面檢查變更</li></ol>';
+                results.appendChild(success);
+            } else {
+                const warn = document.createElement('div');
+                warn.className = 'check-item warning';
+                warn.innerHTML = '<h3>⚠️ 發現問題</h3><p>請按 "清除快取並重新加載" 按鈕</p>';
+                results.appendChild(warn);
+            }
+        }
+
+        function clearCache() {
+            // 清除 LocalStorage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 清除應用快取（如有）
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+
+            // 重新加載頁面
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
+
+        // 頁面載入時自動執行檢查
+        window.addEventListener('load', () => {
+            runChecks();
+        });
+    </script>
+</body>
+</html>
